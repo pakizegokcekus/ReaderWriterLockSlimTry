@@ -28,7 +28,13 @@ namespace ReaderWriterLockSlimTry
                     {
                         readerWriterLockSlim.EnterReadLock();
                         foreach (int i in items)
-                        { }
+                        {
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        throw;
                     }
                     finally
                     {
@@ -43,12 +49,26 @@ namespace ReaderWriterLockSlimTry
             {
                 while (true)
                 {
-                    int newNumber = GetRandNum(50);
-                    readerWriterLockSlim.EnterWriteLock();
-                    items.Add(newNumber);
-                    readerWriterLockSlim.ExitWriteLock();
-                    Console.WriteLine("Thread " + threadID + " added " + newNumber);
-                    //Thread.Sleep(100000);
+                    try
+                    {
+                        int newNumber = GetRandNum(50);
+                        readerWriterLockSlim.EnterWriteLock();
+                        items.Add(newNumber);
+                        Console.WriteLine("Thread " + threadID + " added " + newNumber);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
+                    finally
+                    {
+                        if (readerWriterLockSlim.IsWriteLockHeld)
+                        {
+                            readerWriterLockSlim.ExitWriteLock();
+                        }
+                    }
+                    
                 }
             }
             int GetRandNum(int max)
