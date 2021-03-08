@@ -14,18 +14,29 @@ namespace ReaderWriterLockSlimTry
             Random rand = new Random();
             new Thread(Read).Start();
             new Thread(Read).Start();
-            new Thread(Read).Start();
             new Thread(Write).Start("A");
-            new Thread(Write).Start("B");
+            new Thread(Read).Start();
+            new Thread(Read).Start();
+            // new Thread(Write).Start("B");
             Console.Read();
 
             void Read()
             {
                 while (true)
                 {
-                    readerWriterLockSlim.EnterReadLock();
-                    foreach (int i in items) Thread.Sleep(10);
-                    readerWriterLockSlim.ExitReadLock();
+                    try
+                    {
+                        readerWriterLockSlim.EnterReadLock();
+                        foreach (int i in items)
+                        { }
+                    }
+                    finally
+                    {
+                        if (readerWriterLockSlim.IsReadLockHeld)
+                        {
+                            readerWriterLockSlim.ExitReadLock();
+                        }
+                    }
                 }
             }
             void Write(object threadID)
@@ -37,7 +48,7 @@ namespace ReaderWriterLockSlimTry
                     items.Add(newNumber);
                     readerWriterLockSlim.ExitWriteLock();
                     Console.WriteLine("Thread " + threadID + " added " + newNumber);
-                    Thread.Sleep(100);
+                    //Thread.Sleep(100000);
                 }
             }
             int GetRandNum(int max)
